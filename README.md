@@ -78,6 +78,8 @@ Never prefix AI or service-role secrets with `NEXT_PUBLIC_`.
 
 The migration enables PostGIS; creates profiles, observations, saved locations, and field briefs; creates GIST and user/time indexes; enables RLS; and installs `create_field_observation` and `nearby_field_observations`. Nearby queries use `ST_DWithin` in meters and sort using `ST_Distance`.
 
+After creating a local Auth user, apply the optional repeatable technical-demo dataset with `npx supabase db push --include-seed`. Seed records are attached to the newest non-test user and are visibly labeled as synthetic Demo data in the UI.
+
 ## Quality checks
 
 ```bash

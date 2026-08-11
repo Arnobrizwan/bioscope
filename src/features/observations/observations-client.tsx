@@ -204,7 +204,14 @@ export function ObservationsClient() {
                 >
                   <div className="flex justify-between gap-4">
                     <div>
-                      <h2 className="font-semibold">{item.speciesName}</h2>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <h2 className="font-semibold">{item.speciesName}</h2>
+                        {item.notes?.startsWith("Demo data:") && (
+                          <span className="rounded bg-amber-50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-amber-800">
+                            Demo data
+                          </span>
+                        )}
+                      </div>
                       {item.scientificName && (
                         <p className="text-sm italic text-slate-500">
                           {item.scientificName}

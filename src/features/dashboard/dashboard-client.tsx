@@ -57,6 +57,11 @@ export function DashboardClient() {
     return [...counts].slice(0, 6).map(([name, count]) => ({ name, count }));
   }, [observations]);
   const isReady = status === "ready";
+  const isDemoOnly =
+    observations.length > 0 &&
+    observations.every((observation) =>
+      observation.notes?.startsWith("Demo data:"),
+    );
   const cards = [
     {
       label: "Species identified",
@@ -109,7 +114,7 @@ export function DashboardClient() {
               {status === "loading"
                 ? "Loading researcher data…"
                 : isReady
-                  ? note
+                  ? `${isDemoOnly ? "Demo data · " : ""}${note}`
                   : "Sign in / configure Supabase"}
             </p>
           </div>
@@ -119,7 +124,8 @@ export function DashboardClient() {
         <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
           <h2 className="font-semibold">Recorded species distribution</h2>
           <p className="mt-1 text-sm text-slate-500">
-            Counts from the authenticated researcher&apos;s field records
+            {isDemoOnly ? "Demo data · " : ""}Counts from the authenticated
+            researcher&apos;s field records
           </p>
           <div className="mt-6 h-72">
             {chart.length ? (
@@ -151,6 +157,11 @@ export function DashboardClient() {
                   <p className="text-sm font-medium">
                     {observation.speciesName}
                   </p>
+                  {observation.notes?.startsWith("Demo data:") && (
+                    <span className="mt-1 inline-flex rounded bg-amber-50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-amber-800">
+                      Demo data
+                    </span>
+                  )}
                   <p className="mt-1 text-xs text-slate-500">
                     {new Date(observation.observedAt).toLocaleDateString()} ·{" "}
                     {observation.latitude.toFixed(3)},{" "}
