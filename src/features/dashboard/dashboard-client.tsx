@@ -12,14 +12,24 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import type { FieldObservation, SavedLocation } from "@/types/domain";
+import type {
+  FieldObservation,
+  LocationIntelligence,
+  SavedLocation,
+} from "@/types/domain";
 
 export function DashboardClient() {
   const [observations, setObservations] = useState<FieldObservation[]>([]);
   const [locations, setLocations] = useState<SavedLocation[]>([]);
+  const [intelligence, setIntelligence] = useState<LocationIntelligence | null>(
+    null,
+  );
   const [status, setStatus] = useState<"loading" | "ready" | "unavailable">(
     "loading",
   );
+  const [externalStatus, setExternalStatus] = useState<
+    "loading" | "ready" | "unavailable"
+  >("loading");
 
   useEffect(() => {
     Promise.all([fetch("/api/observations"), fetch("/api/saved-locations")])
@@ -41,54 +51,60 @@ export function DashboardClient() {
       .catch(() => setStatus("unavailable"));
   }, []);
 
-  const speciesCount = new Set(
-    observations.map(
-      (observation) => observation.scientificName || observation.speciesName,
-    ),
-  ).size;
+  useEffect(() => {
+    fetch("/api/location-intelligence?lat=4.2105&lng=101.9758&radius=25")
+      .then(async (response) => {
+        const body = (await response.json()) as {
+          data?: LocationIntelligence;
+        };
+        if (!response.ok || !body.data) {
+          setExternalStatus("unavailable");
+          return;
+        }
+        setIntelligence(body.data);
+        setExternalStatus("ready");
+      })
+      .catch(() => setExternalStatus("unavailable"));
+  }, []);
+
   const chart = useMemo(() => {
-    const counts = new Map<string, number>();
-    observations.forEach((observation) =>
-      counts.set(
-        observation.speciesName,
-        (counts.get(observation.speciesName) ?? 0) + observation.count,
-      ),
+    if (!intelligence) return [];
+    return Object.entries(intelligence.biodiversity.taxonomicDistribution).map(
+      ([name, count]) => ({
+        name: name.charAt(0).toUpperCase() + name.slice(1),
+        count,
+      }),
     );
-    return [...counts].slice(0, 6).map(([name, count]) => ({ name, count }));
-  }, [observations]);
+  }, [intelligence]);
   const isReady = status === "ready";
-  const isDemoOnly =
-    observations.length > 0 &&
-    observations.every((observation) =>
-      observation.notes?.startsWith("Demo data:"),
-    );
   const cards = [
     {
       label: "Species identified",
-      value: speciesCount,
-      note: "Your observations",
+      value: intelligence?.biodiversity.speciesCount ?? 0,
+      note: "Live GBIF map sample",
       icon: Microscope,
+      ready: externalStatus === "ready",
     },
     {
-      label: "Observation records",
-      value: observations.length,
-      note: "Database-backed",
-      icon: ClipboardList,
-    },
-    {
-      label: "Individuals recorded",
-      value: observations.reduce(
-        (sum, observation) => sum + observation.count,
-        0,
-      ),
-      note: "Reported field counts",
+      label: "Biodiversity occurrences",
+      value: intelligence?.biodiversity.occurrenceCount ?? 0,
+      note: "Mappable GBIF records",
       icon: ScanSearch,
+      ready: externalStatus === "ready",
+    },
+    {
+      label: "Saved observations",
+      value: observations.length,
+      note: "Your PostGIS records",
+      icon: ClipboardList,
+      ready: isReady,
     },
     {
       label: "Survey locations",
       value: locations.length,
       note: "Saved analysis areas",
       icon: MapPinned,
+      ready: isReady,
     },
   ];
 
@@ -98,7 +114,7 @@ export function DashboardClient() {
         className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4"
         aria-live="polite"
       >
-        {cards.map(({ label, value, note, icon: Icon }) => (
+        {cards.map(({ label, value, note, icon: Icon, ready }) => (
           <div
             key={label}
             className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm"
@@ -108,24 +124,28 @@ export function DashboardClient() {
               <Icon size={18} className="text-emerald-700" />
             </div>
             <p className="mt-4 text-3xl font-semibold">
-              {isReady ? value.toLocaleString() : "—"}
+              {ready ? value.toLocaleString() : "—"}
             </p>
             <p className="mt-1 text-xs text-slate-400">
-              {status === "loading"
-                ? "Loading researcher data…"
-                : isReady
-                  ? `${isDemoOnly ? "Demo data · " : ""}${note}`
-                  : "Sign in / configure Supabase"}
+              {ready
+                ? note
+                : label.startsWith("Species") ||
+                    label.startsWith("Biodiversity")
+                  ? externalStatus === "loading"
+                    ? "Loading live GBIF data…"
+                    : "GBIF temporarily unavailable"
+                  : status === "loading"
+                    ? "Loading researcher data…"
+                    : "Sign in / configure Supabase"}
             </p>
           </div>
         ))}
       </div>
       <div className="mt-5 grid gap-5 lg:grid-cols-[1.3fr_1fr]">
         <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-          <h2 className="font-semibold">Recorded species distribution</h2>
+          <h2 className="font-semibold">Live taxonomic distribution</h2>
           <p className="mt-1 text-sm text-slate-500">
-            {isDemoOnly ? "Demo data · " : ""}Counts from the authenticated
-            researcher&apos;s field records
+            GBIF occurrence records near central Peninsular Malaysia · 25 km
           </p>
           <div className="mt-6 h-72">
             {chart.length ? (
@@ -140,10 +160,16 @@ export function DashboardClient() {
               </ResponsiveContainer>
             ) : (
               <div className="grid h-full place-items-center text-sm text-slate-400">
-                No observation data available.
+                {externalStatus === "loading"
+                  ? "Loading live GBIF distribution…"
+                  : "GBIF distribution unavailable."}
               </div>
             )}
           </div>
+          <p className="mt-2 text-[11px] leading-5 text-slate-500">
+            Occurrence records are not abundance estimates and may contain
+            geographic, temporal, and sampling bias.
+          </p>
         </section>
         <div className="space-y-5">
           <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
@@ -157,11 +183,6 @@ export function DashboardClient() {
                   <p className="text-sm font-medium">
                     {observation.speciesName}
                   </p>
-                  {observation.notes?.startsWith("Demo data:") && (
-                    <span className="mt-1 inline-flex rounded bg-amber-50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-amber-800">
-                      Demo data
-                    </span>
-                  )}
                   <p className="mt-1 text-xs text-slate-500">
                     {new Date(observation.observedAt).toLocaleDateString()} ·{" "}
                     {observation.latitude.toFixed(3)},{" "}
