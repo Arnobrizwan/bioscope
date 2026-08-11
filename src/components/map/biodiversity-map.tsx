@@ -10,6 +10,7 @@ import {
   type GeoJSONSource,
   type MapLayerMouseEvent,
   type MapMouseEvent,
+  type StyleSpecification,
 } from "maplibre-gl";
 import type { LocationCoordinates, OccurrenceRecord } from "@/types/domain";
 
@@ -21,6 +22,22 @@ interface Props {
 }
 
 const SOURCE_ID = "occurrences";
+// A small inline raster style avoids depending on remote style, sprite, glyph,
+// and TileJSON documents. CARTO's no-key basemap is backed by OpenStreetMap and
+// renders Malaysia reliably for this technical prototype.
+const MAP_STYLE: StyleSpecification = {
+  version: 8,
+  sources: {
+    carto: {
+      type: "raster",
+      tiles: ["https://basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png"],
+      tileSize: 256,
+      attribution:
+        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+    },
+  },
+  layers: [{ id: "carto", type: "raster", source: "carto" }],
+};
 
 function occurrenceGeoJson(
   occurrences: OccurrenceRecord[],
@@ -63,7 +80,7 @@ export default function BiodiversityMap({
     if (!containerRef.current || mapRef.current) return;
     const map = new Map({
       container: containerRef.current,
-      style: "https://demotiles.maplibre.org/style.json",
+      style: MAP_STYLE,
       center: [
         initialLocationRef.current.longitude,
         initialLocationRef.current.latitude,

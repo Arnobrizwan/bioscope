@@ -135,7 +135,7 @@ No service-role or LLM secret is sent to the browser. External requests execute 
 
 ## Data limitations
 
-The 200-record GBIF cap controls raw cache size, API payload, and map performance. The query uses a 32-segment geodesic search polygon approximating the selected radius; aggregate pagination remains a future refinement. NASA POWER values are recent daily gridded product averages, not real-time sensor readings. The supplied public demo map style should be replaced by an operational tile provider with an appropriate SLA before production use.
+The 200-record GBIF cap controls raw cache size, API payload, and map performance. The query uses a 32-segment geodesic search polygon approximating the selected radius; aggregate pagination remains a future refinement. NASA POWER values are recent daily gridded product averages, not real-time sensor readings. The no-key CARTO/OpenStreetMap community basemap is appropriate for this prototype; an operational deployment should contract a tile provider with a defined SLA and usage terms.
 
 ## Scientific Data Disclaimer
 
