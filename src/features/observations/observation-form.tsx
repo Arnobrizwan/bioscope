@@ -8,9 +8,9 @@ import { Button } from "@/components/ui/button";
 import type { LocationCoordinates } from "@/types/domain";
 
 const ObservationMap = dynamic(() => import("@/components/map/biodiversity-map"), { ssr: false });
-const initialLocation = { latitude: 4.2105, longitude: 101.9758 };
+const defaultLocation = { latitude: 4.2105, longitude: 101.9758 };
 
-export function ObservationForm() {
+export function ObservationForm({ initialLocation = defaultLocation }: { initialLocation?: LocationCoordinates }) {
   const router = useRouter();
   const [location, setLocation] = useState<LocationCoordinates>(initialLocation);
   const [saving, setSaving] = useState(false);

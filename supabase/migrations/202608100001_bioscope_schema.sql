@@ -116,7 +116,10 @@ create or replace function public.nearby_field_observations(
     and (o.user_id = p_user_id or o.is_public)
     and extensions.st_dwithin(o.location, extensions.st_setsrid(extensions.st_makepoint(p_longitude, p_latitude), 4326)::extensions.geography, p_radius_km * 1000)
     and (p_species is null or o.species_name ilike '%' || p_species || '%' or o.scientific_name ilike '%' || p_species || '%')
-  order by distance_km;
+  order by extensions.st_distance(
+    o.location,
+    extensions.st_setsrid(extensions.st_makepoint(p_longitude, p_latitude), 4326)::extensions.geography
+  );
 $$;
 
 grant select on public.field_observations_with_coordinates to authenticated;

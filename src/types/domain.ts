@@ -96,6 +96,14 @@ export interface FieldObservation extends LocationCoordinates {
   updatedAt: string;
 }
 
+export interface SavedLocation extends LocationCoordinates {
+  id: string;
+  userId: string;
+  label: string;
+  radiusKm: number;
+  createdAt: string;
+}
+
 export interface FieldBriefInput {
   location: LocationCoordinates & { radiusKm: number };
   biodiversitySummary: Pick<BiodiversitySummary, "speciesCount" | "occurrenceCount">;

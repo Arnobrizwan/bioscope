@@ -12,9 +12,15 @@ const BiodiversityMap = dynamic(() => import("@/components/map/biodiversity-map"
 const defaultLocation = { latitude: 4.2105, longitude: 101.9758 };
 const quickLocations = [{ label: "Malaysian rainforest", latitude: 4.55, longitude: 102.45 }, { label: "Coastal area", latitude: 5.42, longitude: 100.24 }];
 
-export function ExplorerClient() {
-  const [location, setLocation] = useState<LocationCoordinates>(defaultLocation);
-  const [radius, setRadius] = useState(25);
+export function ExplorerClient({
+  initialLocation = defaultLocation,
+  initialRadius = 25,
+}: {
+  initialLocation?: LocationCoordinates;
+  initialRadius?: number;
+}) {
+  const [location, setLocation] = useState<LocationCoordinates>(initialLocation);
+  const [radius, setRadius] = useState(initialRadius);
   const [data, setData] = useState<LocationIntelligence | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");

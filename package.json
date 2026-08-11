@@ -11,6 +11,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
+    "test:e2e:production": "PLAYWRIGHT_BASE_URL=https://bioscope-malaysia.fly.dev PLAYWRIGHT_SKIP_WEBSERVER=1 PRODUCTION_SMOKE=1 playwright test e2e/production.spec.ts",
+    "test:e2e:auth-production": "PLAYWRIGHT_BASE_URL=https://bioscope-malaysia.fly.dev PLAYWRIGHT_SKIP_WEBSERVER=1 PRODUCTION_AUTH_SMOKE=1 playwright test e2e/authenticated-production.spec.ts",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
   },

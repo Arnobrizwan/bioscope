@@ -9,7 +9,7 @@ BioScope is a production-oriented biodiversity intelligence and field operations
 - Recent completed-period NASA POWER temperature, precipitation, humidity, and solar context
 - Resilient partial-provider results, timeouts, rate limits, Zod validation, and safe error envelopes
 - Supabase passwordless authentication, PostgreSQL/PostGIS persistence, spatial functions, indexes, and RLS
-- Provider-independent AI interface with constrained structured input and a clearly labeled no-key fallback
+- Provider-independent AI interface with constrained structured input and a clearly labeled development-only no-key fallback
 - Real-user dashboard values, accessible loading/error/empty states, unit/component/API tests, and Playwright E2E
 
 ## Screenshots
@@ -32,7 +32,7 @@ This prevents nullable or provider-specific scientific schemas from leaking into
 
 ## Technology stack
 
-Next.js 16 App Router, React 19, strict TypeScript, Tailwind CSS 4, shadcn-style UI primitives, MapLibre GL JS, Recharts, Zod, Supabase Auth/PostgreSQL/PostGIS, Vitest, React Testing Library, Playwright, and Vercel.
+Next.js 16 App Router, React 19, strict TypeScript, Tailwind CSS 4, shadcn-style UI primitives, MapLibre GL JS, Recharts, Zod, Supabase Auth/PostgreSQL/PostGIS, Vitest, React Testing Library, Playwright, Docker, and Fly.io.
 
 ## External data sources
 
@@ -73,7 +73,7 @@ Never prefix AI or service-role secrets with `NEXT_PUBLIC_`.
 1. Create a Supabase project and install the Supabase CLI.
 2. Link the local directory: `npx supabase link --project-ref <project-ref>`.
 3. Apply [the migration](supabase/migrations/202608100001_bioscope_schema.sql): `npx supabase db push`.
-4. In Authentication URL Configuration, set the site URL to your local or Vercel URL and allow `/auth/callback`.
+4. In Authentication URL Configuration, set the site URL to your local or deployed URL and allow `/auth/callback`.
 5. Fill in the public URL and anon key in `.env.local`.
 
 The migration enables PostGIS; creates profiles, observations, saved locations, and field briefs; creates GIST and user/time indexes; enables RLS; and installs `create_field_observation` and `nearby_field_observations`. Nearby queries use `ST_DWithin` in meters and sort using `ST_Distance`.
@@ -91,9 +91,13 @@ npm run build
 
 Third-party scientific endpoints are mocked in automated workflows. Unit tests cover coordinate/radius and observation validation, GBIF/NASA normalization, taxonomic classification, species deduplication, provider degradation, and AI input/fallback behavior.
 
+Production verification is intentionally opt-in. `npm run test:e2e:production` exercises live public scientific workflows. `npm run test:e2e:auth-production` additionally requires temporary admin test credentials supplied through the shell; it creates and removes a disposable user while validating protected persistence and the PostGIS nearby query.
+
 ## Deployment to Fly.io
 
 BioScope ships as a minimal non-root Next.js standalone container. The Fly configuration uses Singapore (`sin`) as the primary region, HTTPS-only ingress, health checks, and automatic machine start/stop for a cost-conscious technical demo.
+
+The current public technical demonstration is available at [bioscope-malaysia.fly.dev](https://bioscope-malaysia.fly.dev).
 
 ```bash
 flyctl auth login
@@ -141,7 +145,7 @@ GBIF occurrence data represents recorded observations, not exhaustive population
 
 - Shared Redis-backed rate limiting and observability for multi-region production
 - Exact circular GBIF querying with server-side pagination and aggregate caching
-- Persisted saved searches and field briefs, plus an authenticated activity timeline
+- Persisted generated field briefs and an authenticated activity timeline
 - Managed evidence uploads with MIME, size, malware, and signed-URL controls
 - A verified conservation-status provider kept separate from occurrence evidence
 - Offline-capable field capture and synchronization conflict handling

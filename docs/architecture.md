@@ -70,7 +70,7 @@ flowchart TD
 
 ## AI boundary
 
-The `AIProvider` interface accepts a compact `FieldBriefInput`: location, aggregate counts, up to eight species summaries, taxonomic distribution, and normalized environment data. Raw occurrence arrays are excluded. The system instruction treats input strings as untrusted data, prohibits unsupported conservation claims, distinguishes record frequency from abundance, and requires bias disclosure. Without `AI_API_KEY`, the provider returns a visibly labeled deterministic demo summary rather than simulating an AI result.
+The `AIProvider` interface accepts a compact `FieldBriefInput`: location, aggregate counts, up to eight species summaries, taxonomic distribution, and normalized environment data. Raw occurrence arrays are excluded. The system instruction treats input strings as untrusted data, prohibits unsupported conservation claims, distinguishes record frequency from abundance, and requires bias disclosure. Outside production, a missing `AI_API_KEY` returns a visibly labeled deterministic demo summary. Production instead returns an explicit unavailable response until a real provider is configured.
 
 ## Caching and operational limits
 
