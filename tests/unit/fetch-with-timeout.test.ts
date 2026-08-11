@@ -11,19 +11,23 @@ describe("fetchJson", () => {
       .mockResolvedValueOnce(Response.json({ records: 12 }));
     vi.stubGlobal("fetch", fetchMock);
 
-    await expect(fetchJson<{ records: number }>("https://provider.test", "Provider")).resolves.toEqual({
+    await expect(
+      fetchJson<{ records: number }>("https://provider.test", "Provider"),
+    ).resolves.toEqual({
       records: 12,
     });
     expect(fetchMock).toHaveBeenCalledTimes(2);
   });
 
   it("does not retry a permanent client error", async () => {
-    const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(new Response(null, { status: 400 }));
+    const fetchMock = vi
+      .fn<typeof fetch>()
+      .mockResolvedValue(new Response(null, { status: 400 }));
     vi.stubGlobal("fetch", fetchMock);
 
-    await expect(fetchJson("https://provider.test", "Provider")).rejects.toThrow(
-      "Provider is temporarily unavailable",
-    );
+    await expect(
+      fetchJson("https://provider.test", "Provider"),
+    ).rejects.toThrow("Provider is temporarily unavailable");
     expect(fetchMock).toHaveBeenCalledOnce();
   });
 });

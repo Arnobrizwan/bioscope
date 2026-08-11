@@ -43,7 +43,10 @@ export interface GbifSpeciesResult {
   genus?: string;
 }
 
-function coordinateSearchPolygon(location: LocationCoordinates, radiusKm: number): string {
+function coordinateSearchPolygon(
+  location: LocationCoordinates,
+  radiusKm: number,
+): string {
   const earthRadiusKm = 6_371;
   const angularDistance = radiusKm / earthRadiusKm;
   const latitude = (location.latitude * Math.PI) / 180;
@@ -59,14 +62,17 @@ function coordinateSearchPolygon(location: LocationCoordinates, radiusKm: number
       longitude +
       Math.atan2(
         Math.sin(bearing) * Math.sin(angularDistance) * Math.cos(latitude),
-        Math.cos(angularDistance) - Math.sin(latitude) * Math.sin(destinationLatitude),
+        Math.cos(angularDistance) -
+          Math.sin(latitude) * Math.sin(destinationLatitude),
       );
     return `${(destinationLongitude * 180) / Math.PI} ${(destinationLatitude * 180) / Math.PI}`;
   });
   return `POLYGON((${points.join(",")}))`;
 }
 
-export function normalizeGbifOccurrence(raw: GbifOccurrence): OccurrenceRecord | null {
+export function normalizeGbifOccurrence(
+  raw: GbifOccurrence,
+): OccurrenceRecord | null {
   if (
     raw.key === undefined ||
     !raw.scientificName ||
@@ -96,9 +102,14 @@ export function normalizeGbifOccurrence(raw: GbifOccurrence): OccurrenceRecord |
   };
 }
 
-export async function searchOccurrences(params: LocationCoordinates & { radiusKm: number }) {
+export async function searchOccurrences(
+  params: LocationCoordinates & { radiusKm: number },
+) {
   const url = new URL(`${GBIF_BASE_URL}/occurrence/search`);
-  url.searchParams.set("geometry", coordinateSearchPolygon(params, params.radiusKm));
+  url.searchParams.set(
+    "geometry",
+    coordinateSearchPolygon(params, params.radiusKm),
+  );
   url.searchParams.set("has_coordinate", "true");
   url.searchParams.set("occurrence_status", "present");
   url.searchParams.set("limit", String(MAX_OCCURRENCES));
@@ -109,24 +120,38 @@ export async function searchOccurrences(params: LocationCoordinates & { radiusKm
 
   return {
     providerCount: response.count,
-    records: response.results.map(normalizeGbifOccurrence).filter((item): item is OccurrenceRecord => item !== null),
+    records: response.results
+      .map(normalizeGbifOccurrence)
+      .filter((item): item is OccurrenceRecord => item !== null),
   };
 }
 
-export async function searchSpecies(query: string): Promise<GbifSpeciesResult[]> {
+export async function searchSpecies(
+  query: string,
+): Promise<GbifSpeciesResult[]> {
   const url = new URL(`${GBIF_BASE_URL}/species/search`);
   url.searchParams.set("q", query);
   url.searchParams.set("limit", "20");
-  const response = await fetchJson<{ results: GbifSpeciesResult[] }>(url, "GBIF", {
-    next: { revalidate: 86_400 },
-  });
+  const response = await fetchJson<{ results: GbifSpeciesResult[] }>(
+    url,
+    "GBIF",
+    {
+      next: { revalidate: 86_400 },
+    },
+  );
   return response.results;
 }
 
-export async function getSpeciesDetails(taxonKey: number): Promise<GbifSpeciesResult> {
-  return fetchJson<GbifSpeciesResult>(`${GBIF_BASE_URL}/species/${taxonKey}`, "GBIF", {
-    next: { revalidate: 86_400 },
-  });
+export async function getSpeciesDetails(
+  taxonKey: number,
+): Promise<GbifSpeciesResult> {
+  return fetchJson<GbifSpeciesResult>(
+    `${GBIF_BASE_URL}/species/${taxonKey}`,
+    "GBIF",
+    {
+      next: { revalidate: 86_400 },
+    },
+  );
 }
 
 export async function getOccurrencesByTaxon(taxonKey: number) {
@@ -134,5 +159,7 @@ export async function getOccurrencesByTaxon(taxonKey: number) {
   url.searchParams.set("taxon_key", String(taxonKey));
   url.searchParams.set("has_coordinate", "true");
   url.searchParams.set("limit", "100");
-  return fetchJson<GbifOccurrenceResponse>(url, "GBIF", { next: { revalidate: 3_600 } });
+  return fetchJson<GbifOccurrenceResponse>(url, "GBIF", {
+    next: { revalidate: 3_600 },
+  });
 }

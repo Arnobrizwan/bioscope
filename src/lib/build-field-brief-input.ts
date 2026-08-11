@@ -1,6 +1,8 @@
 import type { FieldBriefInput, LocationIntelligence } from "@/types/domain";
 
-export function buildFieldBriefInput(intelligence: LocationIntelligence): FieldBriefInput {
+export function buildFieldBriefInput(
+  intelligence: LocationIntelligence,
+): FieldBriefInput {
   return {
     location: intelligence.location,
     biodiversitySummary: {

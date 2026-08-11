@@ -34,11 +34,15 @@ export class SavedLocationRepository {
       .select("*")
       .eq("user_id", userId)
       .order("created_at", { ascending: false });
-    if (error) throw new AppError("INTERNAL_ERROR", "Unable to load saved locations.");
+    if (error)
+      throw new AppError("INTERNAL_ERROR", "Unable to load saved locations.");
     return (data as SavedLocationRow[]).map(toDomain);
   }
 
-  async create(userId: string, input: SavedLocationInput): Promise<SavedLocation> {
+  async create(
+    userId: string,
+    input: SavedLocationInput,
+  ): Promise<SavedLocation> {
     const { data, error } = await this.db.rpc("create_saved_location", {
       p_user_id: userId,
       p_label: input.label,
@@ -46,7 +50,8 @@ export class SavedLocationRepository {
       p_longitude: input.longitude,
       p_radius_km: input.radiusKm,
     });
-    if (error || !data) throw new AppError("INTERNAL_ERROR", "Unable to save location.");
+    if (error || !data)
+      throw new AppError("INTERNAL_ERROR", "Unable to save location.");
     return toDomain((Array.isArray(data) ? data[0] : data) as SavedLocationRow);
   }
 }

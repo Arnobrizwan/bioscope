@@ -22,5 +22,10 @@ export default async function ExplorerPage({
       : undefined;
   const initialRadius = [5, 10, 25, 50].includes(radius) ? radius : undefined;
 
-  return <ExplorerClient initialLocation={initialLocation} initialRadius={initialRadius} />;
+  return (
+    <ExplorerClient
+      initialLocation={initialLocation}
+      initialRadius={initialRadius}
+    />
+  );
 }

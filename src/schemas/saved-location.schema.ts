@@ -1,5 +1,9 @@
 import { z } from "zod";
-import { latitudeSchema, longitudeSchema, radiusSchema } from "@/schemas/location.schema";
+import {
+  latitudeSchema,
+  longitudeSchema,
+  radiusSchema,
+} from "@/schemas/location.schema";
 
 export const savedLocationInputSchema = z.object({
   label: z.string().trim().min(2).max(120),

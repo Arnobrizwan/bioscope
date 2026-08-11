@@ -1,11 +1,20 @@
-import { buildBiodiversitySummary, emptyBiodiversitySummary } from "@/services/biodiversity.service";
+import {
+  buildBiodiversitySummary,
+  emptyBiodiversitySummary,
+} from "@/services/biodiversity.service";
 import { searchOccurrences } from "@/services/gbif.service";
 import { getEnvironmentalSnapshot } from "@/services/nasa-power.service";
 import type { LocationIntelligence } from "@/types/domain";
 import type { LocationQuery } from "@/schemas/location.schema";
 
-export async function getLocationIntelligence(query: LocationQuery): Promise<LocationIntelligence> {
-  const location = { latitude: query.lat, longitude: query.lng, radiusKm: query.radius };
+export async function getLocationIntelligence(
+  query: LocationQuery,
+): Promise<LocationIntelligence> {
+  const location = {
+    latitude: query.lat,
+    longitude: query.lng,
+    radiusKm: query.radius,
+  };
   const [gbifResult, nasaResult] = await Promise.allSettled([
     searchOccurrences(location),
     getEnvironmentalSnapshot(location),
@@ -24,7 +33,9 @@ export async function getLocationIntelligence(query: LocationQuery): Promise<Loc
     );
   }
   if (nasaResult.status === "rejected") {
-    warnings.push("NASA POWER environmental context is temporarily unavailable.");
+    warnings.push(
+      "NASA POWER environmental context is temporarily unavailable.",
+    );
   }
 
   return {
@@ -32,15 +43,25 @@ export async function getLocationIntelligence(query: LocationQuery): Promise<Loc
     biodiversity,
     environment: nasaResult.status === "fulfilled" ? nasaResult.value : null,
     metadata: {
-      gbifRecordsFetched: gbifResult.status === "fulfilled" ? gbifResult.value.records.length : 0,
+      gbifRecordsFetched:
+        gbifResult.status === "fulfilled" ? gbifResult.value.records.length : 0,
       generatedAt: new Date().toISOString(),
       biodiversityStatus:
-        gbifResult.status === "rejected" ? "unavailable" : biodiversity.occurrenceCount ? "ok" : "empty",
-      environmentStatus: nasaResult.status === "fulfilled" ? "ok" : "unavailable",
+        gbifResult.status === "rejected"
+          ? "unavailable"
+          : biodiversity.occurrenceCount
+            ? "ok"
+            : "empty",
+      environmentStatus:
+        nasaResult.status === "fulfilled" ? "ok" : "unavailable",
       warnings,
       sources: [
         { provider: "GBIF", url: "https://www.gbif.org/", isDemo: false },
-        { provider: "NASA POWER", url: "https://power.larc.nasa.gov/", isDemo: false },
+        {
+          provider: "NASA POWER",
+          url: "https://power.larc.nasa.gov/",
+          isDemo: false,
+        },
       ],
     },
   };

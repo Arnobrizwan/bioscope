@@ -12,7 +12,10 @@ const canRun =
   Boolean(process.env.PRODUCTION_AUTH_SMOKE) &&
   requiredEnvironment.every((name) => Boolean(process.env[name]));
 
-test.skip(!canRun, "Runs only when disposable production-auth credentials are supplied.");
+test.skip(
+  !canRun,
+  "Runs only when disposable production-auth credentials are supplied.",
+);
 
 test("authenticated researcher can save locations and run a PostGIS nearby query", async ({
   context,
@@ -34,50 +37,58 @@ test("authenticated researcher can save locations and run a PostGIS nearby query
   let userId: string | undefined;
 
   try {
-    const { data: created, error: createError } = await admin.auth.admin.createUser({
-      email,
-      password,
-      email_confirm: true,
-    });
+    const { data: created, error: createError } =
+      await admin.auth.admin.createUser({
+        email,
+        password,
+        email_confirm: true,
+      });
     expect(createError).toBeNull();
     userId = created.user?.id;
     expect(userId).toBeTruthy();
 
-    const { data: signedIn, error: signInError } = await browserAuth.auth.signInWithPassword({
-      email,
-      password,
-    });
+    const { data: signedIn, error: signInError } =
+      await browserAuth.auth.signInWithPassword({
+        email,
+        password,
+      });
     expect(signInError).toBeNull();
     expect(signedIn.session).toBeTruthy();
     await installSupabaseSession(context, projectRef, signedIn.session!);
 
-    const observationResponse = await context.request.post("/api/observations", {
-      data: {
-        speciesName: "Malayan tapir",
-        scientificName: "Tapirus indicus",
-        latitude: 3.312,
-        longitude: 101.735,
-        observedAt: new Date().toISOString(),
-        count: 1,
-        notes: "Disposable production verification record.",
-        evidenceUrl: "",
-        isPublic: false,
+    const observationResponse = await context.request.post(
+      "/api/observations",
+      {
+        data: {
+          speciesName: "Malayan tapir",
+          scientificName: "Tapirus indicus",
+          latitude: 3.312,
+          longitude: 101.735,
+          observedAt: new Date().toISOString(),
+          count: 1,
+          notes: "Disposable production verification record.",
+          evidenceUrl: "",
+          isPublic: false,
+        },
       },
-    });
+    );
     expect(observationResponse.status()).toBe(201);
     const observation = (await observationResponse.json()) as {
       data: { id: string; speciesName: string };
     };
     expect(observation.data.speciesName).toBe("Malayan tapir");
 
-    const locationResponse = await context.request.post("/api/saved-locations", {
-      data: {
-        label: "Production verification site",
-        latitude: 3.312,
-        longitude: 101.735,
-        radiusKm: 25,
+    const locationResponse = await context.request.post(
+      "/api/saved-locations",
+      {
+        data: {
+          label: "Production verification site",
+          latitude: 3.312,
+          longitude: 101.735,
+          radiusKm: 25,
+        },
       },
-    });
+    );
     expect(locationResponse.status()).toBe(201);
 
     const nearbyResponse = await context.request.get(
@@ -89,18 +100,25 @@ test("authenticated researcher can save locations and run a PostGIS nearby query
     };
     expect(nearby.data).toEqual(
       expect.arrayContaining([
-        expect.objectContaining({ id: observation.data.id, distanceKm: expect.any(Number) }),
+        expect.objectContaining({
+          id: observation.data.id,
+          distanceKm: expect.any(Number),
+        }),
       ]),
     );
 
     await page.goto("/dashboard");
-    await expect(page.getByText("Researcher dashboard", { exact: false })).toBeVisible();
+    await expect(
+      page.getByText("Researcher dashboard", { exact: false }),
+    ).toBeVisible();
     await expect(page.getByText("Production verification site")).toBeVisible();
 
     await page.goto("/observations");
     await expect(page.getByText("Malayan tapir")).toBeVisible();
     await page.getByRole("button", { name: "Search nearby" }).click();
-    await expect(page.getByText(/observations found within 25 km/)).toBeVisible();
+    await expect(
+      page.getByText(/observations found within 25 km/),
+    ).toBeVisible();
     await expect(page.getByText(/0\.00 km/)).toBeVisible();
   } finally {
     if (userId) {

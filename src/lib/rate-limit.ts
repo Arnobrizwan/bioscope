@@ -14,9 +14,14 @@ export function checkRateLimit(key: string, limit: number, windowMs: number) {
   }
 
   current.count += 1;
-  return { allowed: current.count <= limit, remaining: Math.max(0, limit - current.count) };
+  return {
+    allowed: current.count <= limit,
+    remaining: Math.max(0, limit - current.count),
+  };
 }
 
 export function requestIdentity(request: Request): string {
-  return request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "anonymous";
+  return (
+    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "anonymous"
+  );
 }

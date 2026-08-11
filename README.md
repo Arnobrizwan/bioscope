@@ -57,14 +57,14 @@ Open `http://localhost:3000`. The public Explorer works without Supabase. Outsid
 
 ## Environment variables
 
-| Variable | Visibility | Required | Purpose |
-| --- | --- | --- | --- |
-| `NEXT_PUBLIC_SUPABASE_URL` | Browser-safe | For auth/data | Supabase project URL |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Browser-safe | For auth/data | RLS-constrained publishable key |
-| `SUPABASE_SERVICE_ROLE_KEY` | Server only | No current user route | Reserved admin operations |
-| `AI_API_KEY` | Server only | Optional | OpenAI-compatible API key |
-| `AI_MODEL` | Server only | Optional | Defaults to `gpt-4o-mini` |
-| `AI_BASE_URL` | Server only | Optional | Compatible `/chat/completions` base |
+| Variable                        | Visibility   | Required              | Purpose                             |
+| ------------------------------- | ------------ | --------------------- | ----------------------------------- |
+| `NEXT_PUBLIC_SUPABASE_URL`      | Browser-safe | For auth/data         | Supabase project URL                |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Browser-safe | For auth/data         | RLS-constrained publishable key     |
+| `SUPABASE_SERVICE_ROLE_KEY`     | Server only  | No current user route | Reserved admin operations           |
+| `AI_API_KEY`                    | Server only  | Optional              | OpenAI-compatible API key           |
+| `AI_MODEL`                      | Server only  | Optional              | Defaults to `gpt-4o-mini`           |
+| `AI_BASE_URL`                   | Server only  | Optional              | Compatible `/chat/completions` base |
 
 Never prefix AI or service-role secrets with `NEXT_PUBLIC_`.
 

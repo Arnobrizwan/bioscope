@@ -8,6 +8,10 @@ export default defineConfig({
   use: { baseURL, trace: "on-first-retry" },
   webServer: process.env.PLAYWRIGHT_SKIP_WEBSERVER
     ? undefined
-    : { command: "npm run dev", url: baseURL, reuseExistingServer: !process.env.CI },
+    : {
+        command: "npm run dev",
+        url: baseURL,
+        reuseExistingServer: !process.env.CI,
+      },
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
 });

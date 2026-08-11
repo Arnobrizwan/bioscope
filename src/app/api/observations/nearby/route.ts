@@ -13,7 +13,9 @@ export async function GET(request: Request) {
       radius: params.get("radius"),
       species: params.get("species") || undefined,
     });
-    return Response.json({ data: await new ObservationRepository(supabase).nearby(user.id, query) });
+    return Response.json({
+      data: await new ObservationRepository(supabase).nearby(user.id, query),
+    });
   } catch (error) {
     return errorResponse(error);
   }

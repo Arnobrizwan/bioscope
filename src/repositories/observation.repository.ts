@@ -35,7 +35,8 @@ function toDomain(row: ObservationRow): FieldObservation {
     notes: row.notes ?? undefined,
     evidenceUrl: row.evidence_url ?? undefined,
     isPublic: row.is_public,
-    distanceKm: row.distance_km === undefined ? undefined : Number(row.distance_km),
+    distanceKm:
+      row.distance_km === undefined ? undefined : Number(row.distance_km),
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
@@ -50,11 +51,15 @@ export class ObservationRepository {
       .select("*")
       .eq("user_id", userId)
       .order("observed_at", { ascending: false });
-    if (error) throw new AppError("INTERNAL_ERROR", "Unable to load observations.");
+    if (error)
+      throw new AppError("INTERNAL_ERROR", "Unable to load observations.");
     return (data as ObservationRow[]).map(toDomain);
   }
 
-  async create(userId: string, input: ObservationInput): Promise<FieldObservation> {
+  async create(
+    userId: string,
+    input: ObservationInput,
+  ): Promise<FieldObservation> {
     // userId comes only from verified auth state; it is never accepted from request JSON.
     const { data, error } = await this.db.rpc("create_field_observation", {
       p_user_id: userId,
@@ -69,7 +74,8 @@ export class ObservationRepository {
       p_evidence_url: input.evidenceUrl || null,
       p_is_public: input.isPublic,
     });
-    if (error || !data) throw new AppError("INTERNAL_ERROR", "Unable to save observation.");
+    if (error || !data)
+      throw new AppError("INTERNAL_ERROR", "Unable to save observation.");
     return toDomain((Array.isArray(data) ? data[0] : data) as ObservationRow);
   }
 
@@ -84,7 +90,8 @@ export class ObservationRepository {
       p_radius_km: query.radius,
       p_species: query.species || null,
     });
-    if (error) throw new AppError("INTERNAL_ERROR", "Unable to run the spatial query.");
+    if (error)
+      throw new AppError("INTERNAL_ERROR", "Unable to run the spatial query.");
     return ((data ?? []) as ObservationRow[]).map(toDomain);
   }
 }

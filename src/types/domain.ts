@@ -106,7 +106,10 @@ export interface SavedLocation extends LocationCoordinates {
 
 export interface FieldBriefInput {
   location: LocationCoordinates & { radiusKm: number };
-  biodiversitySummary: Pick<BiodiversitySummary, "speciesCount" | "occurrenceCount">;
+  biodiversitySummary: Pick<
+    BiodiversitySummary,
+    "speciesCount" | "occurrenceCount"
+  >;
   topSpecies: SpeciesSummary[];
   taxonomicDistribution: TaxonomicDistribution;
   environmentalSnapshot: EnvironmentalSnapshot | null;

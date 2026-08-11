@@ -16,7 +16,10 @@ const EMPTY_DISTRIBUTION: TaxonomicDistribution = {
   other: 0,
 };
 
-export function classifyTaxon(className?: string, kingdom?: string): TaxonomicGroup {
+export function classifyTaxon(
+  className?: string,
+  kingdom?: string,
+): TaxonomicGroup {
   const normalizedClass = className?.trim().toLowerCase();
   const normalizedKingdom = kingdom?.trim().toLowerCase();
 
@@ -29,7 +32,9 @@ export function classifyTaxon(className?: string, kingdom?: string): TaxonomicGr
   return "other";
 }
 
-export function buildBiodiversitySummary(records: OccurrenceRecord[]): BiodiversitySummary {
+export function buildBiodiversitySummary(
+  records: OccurrenceRecord[],
+): BiodiversitySummary {
   const mappable = records.filter(
     (record) =>
       Number.isFinite(record.latitude) &&
@@ -60,14 +65,20 @@ export function buildBiodiversitySummary(records: OccurrenceRecord[]): Biodivers
       });
     } else {
       existing.occurrenceCount += 1;
-      if (record.eventDate && (!existing.latestObservation || record.eventDate > existing.latestObservation)) {
+      if (
+        record.eventDate &&
+        (!existing.latestObservation ||
+          record.eventDate > existing.latestObservation)
+      ) {
         existing.latestObservation = record.eventDate;
       }
     }
   }
 
   const species = [...speciesMap.values()].sort(
-    (a, b) => b.occurrenceCount - a.occurrenceCount || a.scientificName.localeCompare(b.scientificName),
+    (a, b) =>
+      b.occurrenceCount - a.occurrenceCount ||
+      a.scientificName.localeCompare(b.scientificName),
   );
 
   return {

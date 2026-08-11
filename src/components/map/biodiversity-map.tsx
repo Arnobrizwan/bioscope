@@ -22,12 +22,17 @@ interface Props {
 
 const SOURCE_ID = "occurrences";
 
-function occurrenceGeoJson(occurrences: OccurrenceRecord[]): GeoJSON.FeatureCollection {
+function occurrenceGeoJson(
+  occurrences: OccurrenceRecord[],
+): GeoJSON.FeatureCollection {
   return {
     type: "FeatureCollection",
     features: occurrences.slice(0, 200).map((record) => ({
       type: "Feature",
-      geometry: { type: "Point", coordinates: [record.longitude, record.latitude] },
+      geometry: {
+        type: "Point",
+        coordinates: [record.longitude, record.latitude],
+      },
       properties: {
         id: record.id,
         name: record.scientificName,
@@ -38,7 +43,12 @@ function occurrenceGeoJson(occurrences: OccurrenceRecord[]): GeoJSON.FeatureColl
   };
 }
 
-export default function BiodiversityMap({ selected, occurrences = [], onSelect, className }: Props) {
+export default function BiodiversityMap({
+  selected,
+  occurrences = [],
+  onSelect,
+  className,
+}: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<Map | null>(null);
   const markerRef = useRef<Marker | null>(null);
@@ -54,31 +64,106 @@ export default function BiodiversityMap({ selected, occurrences = [], onSelect, 
     const map = new Map({
       container: containerRef.current,
       style: "https://demotiles.maplibre.org/style.json",
-      center: [initialLocationRef.current.longitude, initialLocationRef.current.latitude],
+      center: [
+        initialLocationRef.current.longitude,
+        initialLocationRef.current.latitude,
+      ],
       zoom: 7,
       attributionControl: false,
     });
     map.addControl(new NavigationControl({ showCompass: true }), "top-right");
     map.addControl(new AttributionControl({ compact: true }), "bottom-right");
-    const marker = new Marker({ color: "#065f46", draggable: Boolean(onSelectRef.current) })
-      .setLngLat([initialLocationRef.current.longitude, initialLocationRef.current.latitude])
+    const marker = new Marker({
+      color: "#065f46",
+      draggable: Boolean(onSelectRef.current),
+    })
+      .setLngLat([
+        initialLocationRef.current.longitude,
+        initialLocationRef.current.latitude,
+      ])
       .addTo(map);
     marker.on("dragend", () => {
       const point = marker.getLngLat();
       onSelectRef.current?.({ latitude: point.lat, longitude: point.lng });
     });
-    map.on("click", (event: MapMouseEvent) => onSelectRef.current?.({ latitude: event.lngLat.lat, longitude: event.lngLat.lng }));
+    map.on("click", (event: MapMouseEvent) =>
+      onSelectRef.current?.({
+        latitude: event.lngLat.lat,
+        longitude: event.lngLat.lng,
+      }),
+    );
     map.on("load", () => {
-      map.addSource(SOURCE_ID, { type: "geojson", data: occurrenceGeoJson([]), cluster: true, clusterMaxZoom: 12, clusterRadius: 45 });
-      map.addLayer({ id: "clusters", type: "circle", source: SOURCE_ID, filter: ["has", "point_count"], paint: { "circle-color": ["step", ["get", "point_count"], "#3d8163", 50, "#1f6348", 150, "#124632"], "circle-radius": ["step", ["get", "point_count"], 15, 50, 20, 150, 25], "circle-stroke-color": "#ffffff", "circle-stroke-width": 2 } });
-      map.addLayer({ id: "cluster-count", type: "symbol", source: SOURCE_ID, filter: ["has", "point_count"], layout: { "text-field": ["get", "point_count_abbreviated"], "text-size": 11 }, paint: { "text-color": "#ffffff" } });
-      map.addLayer({ id: "unclustered", type: "circle", source: SOURCE_ID, filter: ["!", ["has", "point_count"]], paint: { "circle-color": "#38a169", "circle-radius": 5, "circle-stroke-width": 1.5, "circle-stroke-color": "#ffffff" } });
+      map.addSource(SOURCE_ID, {
+        type: "geojson",
+        data: occurrenceGeoJson([]),
+        cluster: true,
+        clusterMaxZoom: 12,
+        clusterRadius: 45,
+      });
+      map.addLayer({
+        id: "clusters",
+        type: "circle",
+        source: SOURCE_ID,
+        filter: ["has", "point_count"],
+        paint: {
+          "circle-color": [
+            "step",
+            ["get", "point_count"],
+            "#3d8163",
+            50,
+            "#1f6348",
+            150,
+            "#124632",
+          ],
+          "circle-radius": [
+            "step",
+            ["get", "point_count"],
+            15,
+            50,
+            20,
+            150,
+            25,
+          ],
+          "circle-stroke-color": "#ffffff",
+          "circle-stroke-width": 2,
+        },
+      });
+      map.addLayer({
+        id: "cluster-count",
+        type: "symbol",
+        source: SOURCE_ID,
+        filter: ["has", "point_count"],
+        layout: {
+          "text-field": ["get", "point_count_abbreviated"],
+          "text-size": 11,
+        },
+        paint: { "text-color": "#ffffff" },
+      });
+      map.addLayer({
+        id: "unclustered",
+        type: "circle",
+        source: SOURCE_ID,
+        filter: ["!", ["has", "point_count"]],
+        paint: {
+          "circle-color": "#38a169",
+          "circle-radius": 5,
+          "circle-stroke-width": 1.5,
+          "circle-stroke-color": "#ffffff",
+        },
+      });
       map.on("click", "clusters", async (event: MapLayerMouseEvent) => {
-        const feature = map.queryRenderedFeatures(event.point, { layers: ["clusters"] })[0];
+        const feature = map.queryRenderedFeatures(event.point, {
+          layers: ["clusters"],
+        })[0];
         const clusterId = feature?.properties?.cluster_id as number | undefined;
         if (clusterId === undefined) return;
-        const zoom = await (map.getSource(SOURCE_ID) as GeoJSONSource).getClusterExpansionZoom(clusterId);
-        const coordinates = (feature.geometry as GeoJSON.Point).coordinates as [number, number];
+        const zoom = await (
+          map.getSource(SOURCE_ID) as GeoJSONSource
+        ).getClusterExpansionZoom(clusterId);
+        const coordinates = (feature.geometry as GeoJSON.Point).coordinates as [
+          number,
+          number,
+        ];
         map.easeTo({ center: coordinates, zoom });
       });
       map.on("click", "unclustered", (event: MapLayerMouseEvent) => {
@@ -90,14 +175,20 @@ export default function BiodiversityMap({ selected, occurrences = [], onSelect, 
         const detail = document.createElement("span");
         name.textContent = String(feature.properties?.name ?? "Occurrence");
         name.style.fontStyle = "italic";
-        detail.textContent = String(feature.properties?.commonName || feature.properties?.group || "");
+        detail.textContent = String(
+          feature.properties?.commonName || feature.properties?.group || "",
+        );
         content.append(name, document.createElement("br"), detail);
         new Popup().setLngLat(coordinates).setDOMContent(content).addTo(map);
       });
     });
     mapRef.current = map;
     markerRef.current = marker;
-    return () => { marker.remove(); map.remove(); mapRef.current = null; };
+    return () => {
+      marker.remove();
+      map.remove();
+      mapRef.current = null;
+    };
   }, []);
 
   useEffect(() => {
@@ -107,9 +198,19 @@ export default function BiodiversityMap({ selected, occurrences = [], onSelect, 
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
-    const update = () => (map.getSource(SOURCE_ID) as GeoJSONSource | undefined)?.setData(occurrenceGeoJson(occurrences));
-    if (map.isStyleLoaded()) update(); else map.once("load", update);
+    const update = () =>
+      (map.getSource(SOURCE_ID) as GeoJSONSource | undefined)?.setData(
+        occurrenceGeoJson(occurrences),
+      );
+    if (map.isStyleLoaded()) update();
+    else map.once("load", update);
   }, [occurrences]);
 
-  return <div ref={containerRef} className={className ?? "h-full min-h-96 w-full"} aria-label="Interactive biodiversity occurrence map" />;
+  return (
+    <div
+      ref={containerRef}
+      className={className ?? "h-full min-h-96 w-full"}
+      aria-label="Interactive biodiversity occurrence map"
+    />
+  );
 }

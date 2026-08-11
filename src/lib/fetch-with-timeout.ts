@@ -17,7 +17,8 @@ export async function fetchJson<T>(
 
       if (!response.ok) {
         const retryable = response.status === 429 || response.status >= 500;
-        if (!retryable || attempt === attempts) throw new ExternalServiceError(provider);
+        if (!retryable || attempt === attempts)
+          throw new ExternalServiceError(provider);
       } else {
         return (await response.json()) as T;
       }

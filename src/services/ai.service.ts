@@ -16,7 +16,10 @@ class OpenAICompatibleProvider implements AIProvider {
   async generateFieldBrief(input: FieldBriefInput): Promise<FieldBrief> {
     const response = await fetch(`${this.baseUrl}/chat/completions`, {
       method: "POST",
-      headers: { Authorization: `Bearer ${this.apiKey}`, "Content-Type": "application/json" },
+      headers: {
+        Authorization: `Bearer ${this.apiKey}`,
+        "Content-Type": "application/json",
+      },
       signal: AbortSignal.timeout(20_000),
       body: JSON.stringify({
         model: this.model,
@@ -32,26 +35,51 @@ class OpenAICompatibleProvider implements AIProvider {
         ],
       }),
     });
-    if (!response.ok) throw new ExternalServiceError("AI provider", "AI field brief generation failed.");
-    const payload = (await response.json()) as { choices?: Array<{ message?: { content?: string } }> };
+    if (!response.ok)
+      throw new ExternalServiceError(
+        "AI provider",
+        "AI field brief generation failed.",
+      );
+    const payload = (await response.json()) as {
+      choices?: Array<{ message?: { content?: string } }>;
+    };
     const content = payload.choices?.[0]?.message?.content;
-    if (!content) throw new ExternalServiceError("AI provider", "AI field brief generation failed.");
+    if (!content)
+      throw new ExternalServiceError(
+        "AI provider",
+        "AI field brief generation failed.",
+      );
     const sections = fieldBriefSectionsSchema.parse(JSON.parse(content));
-    return { sections, generatedAt: new Date().toISOString(), mode: "ai", model: this.model };
+    return {
+      sections,
+      generatedAt: new Date().toISOString(),
+      mode: "ai",
+      model: this.model,
+    };
   }
 }
 
 class DeterministicDemoProvider implements AIProvider {
   async generateFieldBrief(input: FieldBriefInput): Promise<FieldBrief> {
-    const topNames = input.topSpecies.slice(0, 3).map((item) => item.scientificName).join(", ");
+    const topNames = input.topSpecies
+      .slice(0, 3)
+      .map((item) => item.scientificName)
+      .join(", ");
     const environment = input.environmentalSnapshot;
     return {
       sections: {
         biodiversitySummary: `${input.biodiversitySummary.occurrenceCount} occurrence records representing ${input.biodiversitySummary.speciesCount} distinct taxa were returned within the selected area. Record frequency is not a measure of population abundance.`,
-        notableRecords: topNames ? `Frequently represented records in this query include ${topNames}.` : "No notable records were available in the supplied dataset.",
-        environmentalContext: environment?.temperature === undefined ? "Environmental context was unavailable." : `The recent completed-period mean temperature was ${environment.temperature} °C. These gridded meteorological values are contextual, not real-time site measurements.`,
-        surveyPriorities: "Use the returned records to plan taxonomically balanced ground surveys and verify coordinates, dates, habitat, and detection method in the field.",
-        dataLimitations: "GBIF occurrence data can contain geographic, temporal, taxonomic, and sampling bias. Absence of records is not evidence of species absence. This deterministic demo brief is decision support, not a scientific conclusion.",
+        notableRecords: topNames
+          ? `Frequently represented records in this query include ${topNames}.`
+          : "No notable records were available in the supplied dataset.",
+        environmentalContext:
+          environment?.temperature === undefined
+            ? "Environmental context was unavailable."
+            : `The recent completed-period mean temperature was ${environment.temperature} °C. These gridded meteorological values are contextual, not real-time site measurements.`,
+        surveyPriorities:
+          "Use the returned records to plan taxonomically balanced ground surveys and verify coordinates, dates, habitat, and detection method in the field.",
+        dataLimitations:
+          "GBIF occurrence data can contain geographic, temporal, taxonomic, and sampling bias. Absence of records is not evidence of species absence. This deterministic demo brief is decision support, not a scientific conclusion.",
       },
       generatedAt: new Date().toISOString(),
       mode: "deterministic-demo",
@@ -63,7 +91,11 @@ export function createAIProvider(): AIProvider {
   const apiKey = process.env.AI_API_KEY;
   if (!apiKey) {
     if (process.env.NODE_ENV === "production") {
-      throw new AppError("CONFIGURATION_ERROR", "AI field brief generation is not configured.", 503);
+      throw new AppError(
+        "CONFIGURATION_ERROR",
+        "AI field brief generation is not configured.",
+        503,
+      );
     }
     return new DeterministicDemoProvider();
   }
