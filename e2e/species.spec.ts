@@ -37,6 +37,12 @@ test("species search explains and distinguishes normalized GBIF results", async 
   });
 
   await page.goto("/species");
+  await expect(page.getByText("Rhinoceros hornbill")).toBeVisible();
+  await expect(page.getByText("Malayan tapir")).toBeVisible();
+  await page.getByRole("button", { name: "Plants" }).click();
+  await expect(page.getByText("Red meranti")).toBeVisible();
+  await expect(page.getByText("Rhinoceros hornbill")).not.toBeVisible();
+  await page.getByRole("button", { name: "All" }).click();
   await expect(
     page.getByText(/prefer accepted GBIF backbone taxa/),
   ).toBeVisible();
@@ -52,6 +58,8 @@ test("species search explains and distinguishes normalized GBIF results", async 
   await expect(
     page.locator('a[href="/species/104061174"]').getByText("Checklist taxon"),
   ).toBeVisible();
+  await page.getByRole("button", { name: "Browse featured species" }).click();
+  await expect(page.getByText("Rajah Brooke's birdwing")).toBeVisible();
 });
 
 test("live species search selects one accepted backbone taxon", async ({
