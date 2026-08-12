@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import {
   AttributionControl,
+  LngLatBounds,
   Map,
   Marker,
   NavigationControl,
@@ -71,6 +72,7 @@ export default function BiodiversityMap({
   const markerRef = useRef<Marker | null>(null);
   const onSelectRef = useRef(onSelect);
   const occurrencesRef = useRef(occurrences);
+  const hasFitOccurrencesRef = useRef(false);
   const initialLocationRef = useRef(selected);
 
   useEffect(() => {
@@ -210,6 +212,7 @@ export default function BiodiversityMap({
   }, []);
 
   useEffect(() => {
+    hasFitOccurrencesRef.current = false;
     markerRef.current?.setLngLat([selected.longitude, selected.latitude]);
   }, [selected]);
 
@@ -217,13 +220,25 @@ export default function BiodiversityMap({
     occurrencesRef.current = occurrences;
     const map = mapRef.current;
     if (!map) return;
-    const update = () =>
+    const update = () => {
       (map.getSource(SOURCE_ID) as GeoJSONSource | undefined)?.setData(
         occurrenceGeoJson(occurrences),
       );
+      if (occurrences.length && !hasFitOccurrencesRef.current) {
+        const bounds = new LngLatBounds(
+          [selected.longitude, selected.latitude],
+          [selected.longitude, selected.latitude],
+        );
+        for (const record of occurrences) {
+          bounds.extend([record.longitude, record.latitude]);
+        }
+        map.fitBounds(bounds, { padding: 72, maxZoom: 11, duration: 600 });
+        hasFitOccurrencesRef.current = true;
+      }
+    };
     if (map.isStyleLoaded()) update();
     else map.once("load", update);
-  }, [occurrences]);
+  }, [occurrences, selected]);
 
   return (
     <div
