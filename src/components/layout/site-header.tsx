@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Binoculars, Menu } from "lucide-react";
+import { ResearcherAuthControl } from "@/components/layout/researcher-auth-control";
 
 const navigation = [
   ["Explorer", "/explorer"],
@@ -43,12 +44,7 @@ export function SiteHeader() {
             </Link>
           ))}
         </nav>
-        <Link
-          href="/login"
-          className="hidden rounded-lg border border-slate-300 px-3.5 py-2 text-sm font-semibold text-slate-800 hover:bg-slate-50 sm:block"
-        >
-          Researcher sign in
-        </Link>
+        <ResearcherAuthControl />
         <Menu className="md:hidden" aria-label="Navigation menu" />
       </div>
     </header>

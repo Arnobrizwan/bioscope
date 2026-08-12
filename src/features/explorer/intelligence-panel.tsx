@@ -151,7 +151,7 @@ export function IntelligencePanel({
         <div className="mt-3 grid grid-cols-2 gap-3">
           <Metric label="Species" value={data.biodiversity.speciesCount} />
           <Metric
-            label="Occurrences"
+            label="Georeferenced records"
             value={data.biodiversity.occurrenceCount}
           />
         </div>

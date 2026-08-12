@@ -2,7 +2,7 @@ import Link from "next/link";
 import { ArrowLeft, Database } from "lucide-react";
 import { notFound } from "next/navigation";
 import {
-  getOccurrencesByTaxon,
+  getGeoreferencedOccurrenceCountByTaxon,
   getSpeciesDetails,
 } from "@/services/gbif.service";
 
@@ -17,9 +17,9 @@ export default async function SpeciesDetailPage({
   let species;
   let occurrenceCount = 0;
   try {
-    [species, { count: occurrenceCount }] = await Promise.all([
+    [species, occurrenceCount] = await Promise.all([
       getSpeciesDetails(key),
-      getOccurrencesByTaxon(key),
+      getGeoreferencedOccurrenceCountByTaxon(key),
     ]);
   } catch {
     notFound();
@@ -67,22 +67,22 @@ export default async function SpeciesDetailPage({
         <aside className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
           <Database className="text-emerald-800" />
           <p className="mt-4 text-sm text-slate-500">
-            Global GBIF occurrence records
+            Global georeferenced GBIF occurrence records
           </p>
           <p className="mt-1 text-4xl font-semibold">
             {occurrenceCount.toLocaleString()}
           </p>
           <p className="mt-4 text-xs leading-5 text-slate-500">
-            This count represents indexed records, not abundance, population
-            size, or conservation status.
+            This count represents indexed records with coordinates, not
+            abundance, population size, species absence, or conservation status.
           </p>
           <a
-            href={`https://www.gbif.org/species/${species.key}`}
+            href={`https://www.gbif.org/occurrence/search?taxon_key=${species.key}&has_coordinate=true`}
             target="_blank"
             rel="noreferrer"
             className="mt-5 inline-block text-sm font-semibold text-emerald-800 underline"
           >
-            View source on GBIF
+            View georeferenced records on GBIF
           </a>
         </aside>
       </div>

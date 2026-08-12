@@ -28,7 +28,7 @@ export function SpeciesSearch() {
       setResults(body.data ?? []);
       setMessage(
         body.data?.length
-          ? `${body.data.length} taxonomy matches from GBIF.`
+          ? `${body.data.length} distinct taxonomy matches from GBIF.`
           : "No taxonomy matches were returned.",
       );
     } catch (error) {
@@ -84,9 +84,20 @@ export function SpeciesSearch() {
                   </p>
                 )}
               </div>
-              <span className="rounded bg-slate-100 px-2 py-1 text-[10px] font-bold uppercase text-slate-500">
-                {item.rank || "taxon"}
-              </span>
+              <div className="flex shrink-0 flex-col items-end gap-1.5">
+                <span className="rounded bg-slate-100 px-2 py-1 text-[10px] font-bold uppercase text-slate-500">
+                  {item.rank || "taxon"}
+                </span>
+                <span
+                  className={
+                    item.isBackbone
+                      ? "rounded bg-emerald-50 px-2 py-1 text-[10px] font-bold uppercase text-emerald-800"
+                      : "rounded bg-amber-50 px-2 py-1 text-[10px] font-bold uppercase text-amber-800"
+                  }
+                >
+                  {item.isBackbone ? "GBIF backbone" : "Checklist taxon"}
+                </span>
+              </div>
             </div>
             <p className="mt-5 text-xs text-slate-500">
               {[item.kingdom, item.class, item.family]

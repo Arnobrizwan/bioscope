@@ -12,6 +12,10 @@ export default function SpeciesPage() {
         Inspect taxonomic records and occurrence coverage. Conservation status
         is intentionally not inferred from occurrence data.
       </p>
+      <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
+        Results prefer accepted GBIF backbone taxa and merge duplicate name
+        usages from other checklists.
+      </p>
       <SpeciesSearch />
     </main>
   );

@@ -108,6 +108,8 @@ test("authenticated researcher can save locations and run a PostGIS nearby query
     );
 
     await page.goto("/dashboard");
+    await expect(page.getByText(email)).toBeVisible();
+    await expect(page.getByRole("button", { name: "Sign out" })).toBeVisible();
     await expect(
       page.getByText("Researcher dashboard", { exact: false }),
     ).toBeVisible();

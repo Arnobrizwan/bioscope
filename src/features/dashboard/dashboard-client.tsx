@@ -86,7 +86,7 @@ export function DashboardClient() {
       ready: externalStatus === "ready",
     },
     {
-      label: "Biodiversity occurrences",
+      label: "Georeferenced occurrences",
       value: intelligence?.biodiversity.occurrenceCount ?? 0,
       note: "Mappable GBIF records",
       icon: ScanSearch,
@@ -130,7 +130,7 @@ export function DashboardClient() {
               {ready
                 ? note
                 : label.startsWith("Species") ||
-                    label.startsWith("Biodiversity")
+                    label.startsWith("Georeferenced")
                   ? externalStatus === "loading"
                     ? "Loading live GBIF data…"
                     : "GBIF temporarily unavailable"
@@ -145,7 +145,7 @@ export function DashboardClient() {
         <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
           <h2 className="font-semibold">Live taxonomic distribution</h2>
           <p className="mt-1 text-sm text-slate-500">
-            GBIF occurrence records near central Peninsular Malaysia · 25 km
+            Georeferenced GBIF records near central Peninsular Malaysia · 25 km
           </p>
           <div className="mt-6 h-72">
             {chart.length ? (
@@ -167,8 +167,8 @@ export function DashboardClient() {
             )}
           </div>
           <p className="mt-2 text-[11px] leading-5 text-slate-500">
-            Occurrence records are not abundance estimates and may contain
-            geographic, temporal, and sampling bias.
+            Georeferenced occurrence records are not abundance estimates and may
+            contain geographic, temporal, and sampling bias.
           </p>
         </section>
         <div className="space-y-5">

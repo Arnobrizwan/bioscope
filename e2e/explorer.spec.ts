@@ -13,7 +13,9 @@ test("researcher analyzes an area and sees biodiversity intelligence", async ({
   );
   await page.goto("/explorer");
   await page.getByRole("button", { name: "Analyze Area" }).click();
-  await expect(page.getByText("Occurrences").locator("..")).toContainText("3");
+  await expect(
+    page.getByText("Georeferenced records").locator(".."),
+  ).toContainText("3");
   await expect(page.getByText("28.4 °C")).toBeVisible();
   await expect(page.getByText("Anthracoceros malayanus").first()).toBeVisible();
 });

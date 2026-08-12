@@ -39,7 +39,21 @@ test("production scientific workflows are dynamic and operational", async ({
   await expect(page.getByText(/taxonomy matches from GBIF/)).toBeVisible({
     timeout: 20_000,
   });
-  await expect(page.locator('a[href^="/species/"]').first()).toBeVisible();
+  const backboneResult = page.locator('a[href="/species/5219416"]');
+  await expect(backboneResult).toBeVisible();
+  await expect(backboneResult.getByText("GBIF backbone")).toBeVisible();
+  await expect(page.locator('a[href="/species/5219416"]')).toHaveCount(1);
+  await backboneResult.click();
+  await expect(page).toHaveURL(/\/species\/5219416$/);
+  await expect(
+    page.getByRole("heading", { level: 1, name: /Panthera tigris/ }),
+  ).toBeVisible();
+  await expect(
+    page.getByText("Global georeferenced GBIF occurrence records"),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("link", { name: "View georeferenced records on GBIF" }),
+  ).toHaveAttribute("href", /taxon_key=5219416&has_coordinate=true/);
 
   await page.goto("/observations");
   await expect(page.getByText("Authentication required")).toBeVisible();

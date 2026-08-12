@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { errorResponse } from "@/lib/errors";
 import {
-  getOccurrencesByTaxon,
+  getGeoreferencedOccurrenceCountByTaxon,
   getSpeciesDetails,
 } from "@/services/gbif.service";
 
@@ -12,12 +12,12 @@ export async function GET(
   try {
     const { taxonKey } = await context.params;
     const key = z.coerce.number().int().positive().parse(taxonKey);
-    const [species, occurrences] = await Promise.all([
+    const [species, georeferencedOccurrenceCount] = await Promise.all([
       getSpeciesDetails(key),
-      getOccurrencesByTaxon(key),
+      getGeoreferencedOccurrenceCountByTaxon(key),
     ]);
     return Response.json({
-      data: { species, occurrenceCount: occurrences.count },
+      data: { species, georeferencedOccurrenceCount },
     });
   } catch (error) {
     return errorResponse(error);

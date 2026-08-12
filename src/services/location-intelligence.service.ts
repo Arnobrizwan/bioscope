@@ -29,7 +29,7 @@ export async function getLocationIntelligence(
     warnings.push("GBIF occurrence data is temporarily unavailable.");
   } else if (!biodiversity.occurrenceCount) {
     warnings.push(
-      "No GBIF occurrence records were returned for this area and radius. This does not indicate that biodiversity is absent.",
+      "No georeferenced GBIF occurrence records were returned for this area and radius. This does not indicate that biodiversity is absent.",
     );
   }
   if (nasaResult.status === "rejected") {

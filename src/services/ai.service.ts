@@ -68,7 +68,7 @@ class DeterministicDemoProvider implements AIProvider {
     const environment = input.environmentalSnapshot;
     return {
       sections: {
-        biodiversitySummary: `${input.biodiversitySummary.occurrenceCount} occurrence records representing ${input.biodiversitySummary.speciesCount} distinct taxa were returned within the selected area. Record frequency is not a measure of population abundance.`,
+        biodiversitySummary: `${input.biodiversitySummary.occurrenceCount} georeferenced occurrence records representing ${input.biodiversitySummary.speciesCount} distinct taxa were returned within the selected area. Record frequency is not a measure of population abundance.`,
         notableRecords: topNames
           ? `Frequently represented records in this query include ${topNames}.`
           : "No notable records were available in the supplied dataset.",

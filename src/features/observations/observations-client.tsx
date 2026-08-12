@@ -165,7 +165,7 @@ export function ObservationsClient() {
       }
       setItems(body.data ?? []);
       setFilterMessage(
-        `${body.data?.length ?? 0} personal observations and ${gbifCount} GBIF reference records loaded within ${radius} km.`,
+        `${body.data?.length ?? 0} personal observations and ${gbifCount} georeferenced GBIF reference records loaded within ${radius} km.`,
       );
     } catch (error) {
       setFilterMessage(
@@ -246,7 +246,7 @@ export function ObservationsClient() {
           <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 px-4 py-3 text-xs">
             <span className="font-semibold text-slate-700">
               {filteredItems.length} personal · {filteredReferences.length} GBIF
-              map records
+              georeferenced GBIF map records
             </span>
             <span className="text-slate-500">
               Maximum 200 clustered markers
@@ -309,10 +309,13 @@ export function ObservationsClient() {
               <section className="border-t border-slate-200 pt-5">
                 <div className="flex items-center justify-between gap-3">
                   <div>
-                    <h2 className="font-semibold">GBIF occurrence reference</h2>
+                    <h2 className="font-semibold">
+                      Georeferenced GBIF occurrence reference
+                    </h2>
                     <p className="mt-1 text-xs text-slate-500">
-                      Live free API · {providerCount.toLocaleString()} provider
-                      matches · showing {filteredReferences.length}
+                      Live free API · {providerCount.toLocaleString()}
+                      coordinate-bearing provider matches · showing{" "}
+                      {filteredReferences.length}
                     </p>
                   </div>
                   <a
