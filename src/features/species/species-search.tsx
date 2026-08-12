@@ -170,57 +170,73 @@ export function SpeciesSearch() {
   }
   return (
     <>
-      <form onSubmit={submit} className="mt-7 flex max-w-2xl gap-2">
-        <label className="sr-only" htmlFor="species-query">
-          Species name
-        </label>
-        <input
-          id="species-query"
-          name="query"
-          minLength={2}
-          required
-          placeholder="e.g. Malayan tiger or Panthera tigris"
-          className="h-11 flex-1 rounded-lg border border-slate-300 bg-white px-4 outline-none focus:border-emerald-700 focus:ring-2 focus:ring-emerald-100"
-        />
-        <Button className="h-11" disabled={loading}>
-          {loading ? (
-            <LoaderCircle className="animate-spin" size={16} />
-          ) : (
-            <Search size={16} />
+      <section className="mt-8 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
+        <form
+          onSubmit={submit}
+          className="grid items-end gap-3 sm:grid-cols-[minmax(0,1fr)_auto]"
+        >
+          <label
+            className="block text-sm font-semibold text-slate-700"
+            htmlFor="species-query"
+          >
+            Species name
+            <input
+              id="species-query"
+              name="query"
+              minLength={2}
+              required
+              placeholder="e.g. Malayan tiger or Panthera tigris"
+              className="mt-2 h-12 w-full rounded-lg border border-slate-300 bg-white px-4 font-normal outline-none placeholder:text-slate-400 focus:border-emerald-700 focus:ring-2 focus:ring-emerald-100"
+            />
+          </label>
+          <Button
+            className="h-12 w-full px-6 sm:w-auto"
+            disabled={loading}
+          >
+            {loading ? (
+              <LoaderCircle className="animate-spin" size={17} />
+            ) : (
+              <Search size={17} />
+            )}
+            Search
+          </Button>
+        </form>
+        <div className="mt-3 flex min-h-6 flex-wrap items-center justify-between gap-x-5 gap-y-2">
+          <p className="text-sm leading-6 text-slate-500" aria-live="polite">
+            {message}
+          </p>
+          {!browseMode && (
+            <button
+              type="button"
+              onClick={showFeaturedSpecies}
+              className="inline-flex items-center gap-1.5 text-sm font-semibold text-emerald-800 hover:text-emerald-950"
+            >
+              <RotateCcw size={14} /> Browse featured species
+            </button>
           )}
-          Search
-        </Button>
-      </form>
-      <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
-        <p className="text-sm text-slate-500" aria-live="polite">
-          {message}
-        </p>
-        {!browseMode && (
-          <button
-            type="button"
-            onClick={showFeaturedSpecies}
-            className="inline-flex items-center gap-1.5 text-sm font-semibold text-emerald-800 hover:text-emerald-950"
+        </div>
+        <div className="mt-4 border-t border-slate-100 pt-4 sm:flex sm:items-center sm:gap-4">
+          <p className="mb-2 shrink-0 text-xs font-bold uppercase tracking-[0.14em] text-slate-500 sm:mb-0">
+            Filter by group
+          </p>
+          <div
+            className="flex flex-wrap gap-2"
+            aria-label="Filter species groups"
           >
-            <RotateCcw size={14} /> Browse featured species
-          </button>
-        )}
-      </div>
-      <div
-        className="mt-5 flex flex-wrap gap-2"
-        aria-label="Filter species groups"
-      >
-        {groups.map((group) => (
-          <button
-            key={group}
-            type="button"
-            onClick={() => setActiveGroup(group)}
-            aria-pressed={activeGroup === group}
-            className={`rounded-full border px-3 py-1.5 text-xs font-semibold ${activeGroup === group ? "border-emerald-800 bg-emerald-800 text-white" : "border-slate-200 bg-white text-slate-600 hover:border-emerald-300"}`}
-          >
-            {group}
-          </button>
-        ))}
-      </div>
+            {groups.map((group) => (
+              <button
+                key={group}
+                type="button"
+                onClick={() => setActiveGroup(group)}
+                aria-pressed={activeGroup === group}
+                className={`rounded-full border px-3 py-1.5 text-xs font-semibold transition ${activeGroup === group ? "border-emerald-800 bg-emerald-800 text-white" : "border-slate-200 bg-slate-50 text-slate-600 hover:border-emerald-300 hover:bg-emerald-50"}`}
+              >
+                {group}
+              </button>
+            ))}
+          </div>
+        </div>
+      </section>
       <div className="mt-7 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
         {visibleResults.map((item) => (
           <Link
