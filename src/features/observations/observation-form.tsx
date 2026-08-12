@@ -3,15 +3,21 @@
 import dynamic from "next/dynamic";
 import { LoaderCircle, Save } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { Button } from "@/components/ui/button";
-import type { LocationCoordinates } from "@/types/domain";
+import type { LocationCoordinates, OccurrenceRecord } from "@/types/domain";
 
 const ObservationMap = dynamic(
   () => import("@/components/map/biodiversity-map"),
   { ssr: false },
 );
 const defaultLocation = { latitude: 4.2105, longitude: 101.9758 };
+const REFERENCE_RADIUS_KM = 25;
+
+interface OccurrenceResponse {
+  data?: { occurrences: OccurrenceRecord[] };
+  error?: { message: string };
+}
 
 export function ObservationForm({
   initialLocation = defaultLocation,
@@ -23,6 +29,46 @@ export function ObservationForm({
     useState<LocationCoordinates>(initialLocation);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [referenceRecords, setReferenceRecords] = useState<OccurrenceRecord[]>(
+    [],
+  );
+  const [referenceStatus, setReferenceStatus] = useState<
+    "idle" | "loading" | "ready" | "error"
+  >("idle");
+
+  useEffect(() => {
+    const controller = new AbortController();
+    const timer = window.setTimeout(async () => {
+      setReferenceStatus("loading");
+      try {
+        const params = new URLSearchParams({
+          lat: String(location.latitude),
+          lng: String(location.longitude),
+          radius: String(REFERENCE_RADIUS_KM),
+        });
+        const response = await fetch(`/api/occurrences?${params}`, {
+          signal: controller.signal,
+        });
+        const body = (await response.json()) as OccurrenceResponse;
+        if (!response.ok || !body.data) {
+          throw new Error(
+            body.error?.message || "GBIF occurrence data unavailable.",
+          );
+        }
+        setReferenceRecords(body.data.occurrences);
+        setReferenceStatus("ready");
+      } catch {
+        if (controller.signal.aborted) return;
+        setReferenceRecords([]);
+        setReferenceStatus("error");
+      }
+    }, 250);
+
+    return () => {
+      window.clearTimeout(timer);
+      controller.abort();
+    };
+  }, [location]);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -132,10 +178,18 @@ export function ObservationForm({
             {location.latitude.toFixed(5)}, {location.longitude.toFixed(5)} ·
             click map or drag marker
           </p>
+          <p className="mt-1 text-xs text-slate-500" aria-live="polite">
+            {referenceStatus === "ready"
+              ? `${referenceRecords.length} nearby GBIF reference markers within ${REFERENCE_RADIUS_KM} km`
+              : referenceStatus === "error"
+                ? "GBIF reference markers are temporarily unavailable"
+                : "Loading nearby GBIF reference markers…"}
+          </p>
         </div>
         <ObservationMap
           selected={location}
           onSelect={setLocation}
+          occurrences={referenceRecords}
           className="h-[540px] w-full"
         />
       </div>

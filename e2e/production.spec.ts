@@ -59,6 +59,17 @@ test("production scientific workflows are dynamic and operational", async ({
   await page.goto("/observations");
   await expect(page.getByText("Authentication required")).toBeVisible();
 
+  await page.goto("/observations/new");
+  await expect(
+    page.getByRole("heading", { name: "Record field observation" }),
+  ).toBeVisible();
+  await expect(page.getByText(/nearby GBIF reference markers/)).toBeVisible({
+    timeout: 45_000,
+  });
+  await expect(
+    page.getByRole("button", { name: /occurrence marker/ }).first(),
+  ).toBeVisible();
+
   await page.goto("/login");
   await expect(page.getByLabel("Work email")).toBeVisible();
   await expect(
