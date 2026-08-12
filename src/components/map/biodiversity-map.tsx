@@ -88,7 +88,9 @@ export default function BiodiversityMap({
         initialLocationRef.current.longitude,
         initialLocationRef.current.latitude,
       ],
-      zoom: 7,
+      // Start at survey scale so nearby occurrence clusters do not collapse
+      // underneath the selected-location pin before the first bounds fit.
+      zoom: 10,
       attributionControl: false,
     });
     map.addControl(new NavigationControl({ showCompass: true }), "top-right");
