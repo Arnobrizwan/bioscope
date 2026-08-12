@@ -70,6 +70,7 @@ export default function BiodiversityMap({
   const mapRef = useRef<Map | null>(null);
   const markerRef = useRef<Marker | null>(null);
   const onSelectRef = useRef(onSelect);
+  const occurrencesRef = useRef(occurrences);
   const initialLocationRef = useRef(selected);
 
   useEffect(() => {
@@ -112,7 +113,7 @@ export default function BiodiversityMap({
     map.on("load", () => {
       map.addSource(SOURCE_ID, {
         type: "geojson",
-        data: occurrenceGeoJson([]),
+        data: occurrenceGeoJson(occurrencesRef.current),
         cluster: true,
         clusterMaxZoom: 12,
         clusterRadius: 45,
@@ -213,6 +214,7 @@ export default function BiodiversityMap({
   }, [selected]);
 
   useEffect(() => {
+    occurrencesRef.current = occurrences;
     const map = mapRef.current;
     if (!map) return;
     const update = () =>
