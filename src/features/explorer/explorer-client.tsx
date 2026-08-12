@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { Crosshair, LoaderCircle, MapPin, Search } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { IntelligencePanel } from "@/features/explorer/intelligence-panel";
 import { formatCoordinate } from "@/lib/utils";
@@ -40,8 +40,9 @@ export function ExplorerClient({
     useState<LocationCoordinates>(initialLocation);
   const [radius, setRadius] = useState(initialRadius);
   const [data, setData] = useState<LocationIntelligence | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const initialAnalysisStarted = useRef(false);
   const [activeGroups, setActiveGroups] = useState<Set<TaxonomicGroup>>(
     new Set(),
   );
@@ -53,7 +54,7 @@ export function ExplorerClient({
     [data, activeGroups],
   );
 
-  async function analyze() {
+  const analyze = useCallback(async () => {
     setLoading(true);
     setError("");
     setData(null);
@@ -78,6 +79,26 @@ export function ExplorerClient({
     } finally {
       setLoading(false);
     }
+  }, [location, radius]);
+
+  useEffect(() => {
+    if (initialAnalysisStarted.current) return;
+    initialAnalysisStarted.current = true;
+    void analyze();
+  }, [analyze]);
+
+  function selectLocation(nextLocation: LocationCoordinates) {
+    setLocation(nextLocation);
+    setData(null);
+    setError("");
+    setActiveGroups(new Set());
+  }
+
+  function selectRadius(nextRadius: number) {
+    setRadius(nextRadius);
+    setData(null);
+    setError("");
+    setActiveGroups(new Set());
   }
 
   function toggleGroup(group: TaxonomicGroup) {
@@ -123,7 +144,7 @@ export function ExplorerClient({
               <button
                 id={value === 5 ? "radius" : undefined}
                 key={value}
-                onClick={() => setRadius(value)}
+                onClick={() => selectRadius(value)}
                 className={`rounded-md border px-2 py-2 text-xs font-semibold ${radius === value ? "border-emerald-800 bg-emerald-800 text-white" : "border-slate-200 text-slate-600 hover:bg-slate-50"}`}
               >
                 {value} km
@@ -154,7 +175,7 @@ export function ExplorerClient({
               {quickLocations.map((item) => (
                 <button
                   key={item.label}
-                  onClick={() => setLocation(item)}
+                  onClick={() => selectLocation(item)}
                   className="flex w-full items-center gap-2 rounded-lg border border-slate-200 px-3 py-2.5 text-left text-sm text-slate-700 hover:bg-slate-50"
                 >
                   <MapPin size={15} className="text-emerald-700" />
@@ -196,15 +217,19 @@ export function ExplorerClient({
         <section className="relative min-h-[560px] lg:min-h-0">
           <BiodiversityMap
             selected={location}
-            onSelect={setLocation}
+            onSelect={selectLocation}
             occurrences={occurrences}
             className="absolute inset-0 h-full w-full"
           />
           <div className="pointer-events-none absolute left-4 top-4 rounded-lg border border-white/50 bg-white/90 px-3 py-2 text-xs font-medium text-slate-700 shadow">
             <Crosshair className="mr-1.5 inline" size={14} />
-            {occurrences.length
-              ? `${occurrences.length} mappable records`
-              : "Select a location"}
+            {loading
+              ? "Loading occurrence markers…"
+              : occurrences.length
+                ? `${occurrences.length} mappable records`
+                : data
+                  ? "No mappable records in this area"
+                  : "Location selected — analyze to add markers"}
           </div>
         </section>
         <IntelligencePanel data={data} loading={loading} />

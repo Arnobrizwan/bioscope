@@ -23,8 +23,6 @@ test("production scientific workflows are dynamic and operational", async ({
   await expect(
     page.getByRole("heading", { name: "Biodiversity Explorer" }),
   ).toBeVisible();
-  await page.getByRole("button", { name: "25 km" }).click();
-  await page.getByRole("button", { name: "Analyze Area" }).click();
   await expect(page.getByText("Recent meteorological context")).toBeVisible({
     timeout: 45_000,
   });

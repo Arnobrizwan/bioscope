@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 import { locationIntelligenceFixture } from "../tests/fixtures/location-intelligence";
 
-test("researcher analyzes an area and sees biodiversity intelligence", async ({
+test("researcher sees automatic biodiversity markers and intelligence", async ({
   page,
 }) => {
   await page.route("**/api/location-intelligence?**", (route) =>
@@ -12,7 +12,7 @@ test("researcher analyzes an area and sees biodiversity intelligence", async ({
     }),
   );
   await page.goto("/explorer");
-  await page.getByRole("button", { name: "Analyze Area" }).click();
+  await expect(page.getByText("3 mappable records")).toBeVisible();
   await expect(
     page.getByText("Georeferenced records").locator(".."),
   ).toContainText("3");
