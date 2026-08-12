@@ -36,6 +36,25 @@ textarea {
   border-radius: 9px !important;
   overflow: hidden;
 }
+.bioscope-occurrence-marker {
+  width: 14px;
+  height: 14px;
+  cursor: pointer;
+  border: 2px solid white;
+  border-radius: 9999px;
+  background: #d97706;
+  box-shadow:
+    0 2px 5px rgb(15 23 42 / 0.3),
+    0 0 0 1px rgb(120 53 15 / 0.35);
+  transition: transform 120ms ease;
+}
+.bioscope-occurrence-marker:hover,
+.bioscope-occurrence-marker:focus-visible {
+  z-index: 2;
+  outline: 2px solid #065f46;
+  outline-offset: 2px;
+  transform: scale(1.35);
+}
 @keyframes pulse-soft {
   0%,
   100% {

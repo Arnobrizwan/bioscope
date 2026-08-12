@@ -30,6 +30,9 @@ test("production scientific workflows are dynamic and operational", async ({
     page.getByText("Occurrence data: GBIF", { exact: false }),
   ).toBeVisible();
   await expect(page.getByText(/mappable records/)).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: /occurrence marker/ }).first(),
+  ).toBeVisible();
 
   await page.goto("/species");
   await page.getByLabel("Species name").fill("Panthera tigris");

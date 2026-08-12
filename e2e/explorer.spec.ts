@@ -14,6 +14,9 @@ test("researcher sees automatic biodiversity markers and intelligence", async ({
   await page.goto("/explorer");
   await expect(page.getByText("3 mappable records")).toBeVisible();
   await expect(
+    page.getByRole("button", { name: /occurrence marker/ }),
+  ).toHaveCount(3);
+  await expect(
     page.getByText("Georeferenced records").locator(".."),
   ).toContainText("3");
   await expect(page.getByText("28.4 °C")).toBeVisible();
